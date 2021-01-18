@@ -2,6 +2,8 @@ shared:
   image: centos:centos7
   environment:
     PACKAGE: skopeo
+    VERSION: -1
+    LATEST_VERSION: -1
 parameters:
   override_version: "1"
 
@@ -32,13 +34,13 @@ jobs:
           VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION} )
           export LATEST_VERSION
           export VERSION
-          echo ${VERSION}
   test:
     requires: [~install]
     image: node:12
     steps:
       - get: |
           echo ${VERSION}
+          echo ${LATEST_VERSION}
           store-cli get ./bin/skopeo --type=cache --scope=event
           ls -lrt ./bin
       - node12-sha256: |
