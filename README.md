@@ -1,0 +1,2 @@
+# skopeo
+skopeo binary
