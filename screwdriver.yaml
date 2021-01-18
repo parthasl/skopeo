@@ -2,6 +2,7 @@ shared:
   image: centos:centos7
   environment:
     PACKAGE: skopeo
+    VERSION: 0.0.0
 parameters:
   override_version: "1"
 
@@ -30,6 +31,7 @@ jobs:
       - get-version: |
           LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
           VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION} )
+          echo ${VERSION}
   test:
     requires: [~install]
     image: node:12
@@ -47,6 +49,8 @@ jobs:
   upload:
     requires: [~test]
     steps:
+      - get: |
+          store-cli get ./bin/skopeo --type=cache --scope=event
       - upload: |
           if [[ "$(meta get parameters.override_version.value)" = "1" ]]; then
             VERSION=${LATEST_VERSION}
