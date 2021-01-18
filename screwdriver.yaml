@@ -26,15 +26,27 @@ jobs:
           git clone https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
           cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/${PACKAGE}
           chmod +x bin/${PACKAGE}
+          store-cli set ./bin/skopeo --type=cache --scope=event
       - get-version: |
           LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
           VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION} )
   test:
     requires: [~install]
+    image: node:12
     steps:
       - get: |
-          ls -lrt ./bin
           echo ${VERSION}
+          store-cli get ./bin/skopeo --type=cache --scope=event
+          ls -lrt ./bin
+      - node12-sha256: |
+          ./bin/skopeo inspect docker://docker.io/node:12
+      - alpine-sha256: |
+          ./bin/skopeo inspect docker://docker.io/alpine:latest
+      - busybox-sha256: |
+          ./bin/skopeo inspect docker://docker.io/busybox:latest
+  upload:
+    requires: [~test]
+    steps:
       - upload: |
           if [[ "$(meta get parameters.override_version.value)" = "1" ]]; then
             VERSION=${LATEST_VERSION}
