@@ -2,8 +2,8 @@ shared:
   image: centos:centos7
   environment:
     PACKAGE: skopeo
-  parameters:
-    override_version: "1"
+parameters:
+  override_version: "1"
 
 jobs:
   pull-request:
@@ -26,13 +26,13 @@ jobs:
           git clone https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
           cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/${PACKAGE}
           chmod +x bin/${PACKAGE}
-      - getVersion: |
+      - get-version: |
           LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
           VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION} )
-  skopeo-test:
-    requires: [~skopeo-install]
+  test:
+    requires: [~install]
     steps:
-      - get-skopeo: |
+      - get: |
           ls -lrt ./bin
           echo ${VERSION}
       - upload: |
