@@ -1,8 +1,9 @@
 shared:
   image: centos:centos7
-
-parameters:
-  override_version: "1"
+  environment:
+    PACKAGE: skopeo
+  parameters:
+    override_version: "1"
 
 jobs:
   pull-request:
@@ -10,30 +11,37 @@ jobs:
     steps:
       - build: echo "skip build"
 
-  skopeo:
+  install:
     requires: [~commit]
     environment:
       PACKAGE: skopeo
     steps:
-      - install_skopeo: |
+      - setup: |
           yum install -y epel-release
           yum install -y wget git make gcc gcc-c++ jq
           wget -q -O go1.15.6.tar.gz https://golang.org/dl/go1.15.6.linux-amd64.tar.gz
           tar -C /usr/local -xzf go1.15.6.tar.gz
           mkdir /go && cd /go
-          export GOROOT=/usr/local/go && export GOPATH=/go/src && export PATH=$PATH:$GOROOT/bin
+          export GOROOT=/usr/local/go && export GOPATH=/go/src && export PATH=${PATH}:${GOROOT}/bin
           git clone https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
-          cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/$PACKAGE
+          cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/${PACKAGE}
+          chmod +x bin/${PACKAGE}
       - getVersion: |
           LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
           VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION} )
+  skopeo-test:
+    requires: [~skopeo-install]
+    steps:
+      - get-skopeo: |
+          ls -lrt ./bin
+          echo ${VERSION}
       - upload: |
           if [[ "$(meta get parameters.override_version.value)" = "1" ]]; then
             VERSION=${LATEST_VERSION}
           fi
           echo "version: ${VERSION}"
-          tar -czvf ./bin/${PACKAGE}-${VERSION}-linux.tar.gz ./bin/$PACKAGE
-          #curl --show-error --fail -T ./bin/${PACKAGE}-${VERSION}-linux.tar.gz -u${BINTRAY_USER}:${BINTRAY_APIKEY} https://api.bintray.com/content/screwdrivercd/screwdrivercd/${PACKAGE}/${VERSION}/${PACKAGE}-${VERSION}-linux.tar.gz?publish=1&override=1
+          tar -czvf ./bin/${PACKAGE}-${VERSION}-linux.tar.gz ./bin/${PACKAGE}
+          #curl --show-error --fail -T ./bin/${PACKAGE}-${VERSION}-linux.tar.gz -u${BINTRAY_USER}:${BINTRAY_APIKEY} https://api.bintray.com/content/screwdrivercd/screwdrivercd/${PACKAGE}/${VERSION}/${PACKAGE}-${VERSION}-linux.tar.gz?publish=1&override=$(meta get parameters.override_version.value)
     secrets:
       - BINTRAY_USER
       - BINTRAY_APIKEY
