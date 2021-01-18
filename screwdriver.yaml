@@ -21,5 +21,5 @@ jobs:
           git clone https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
           cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/skopeo
           ls -lrt ./bin/skopeo
-          ./bin/skopeo inspect raw docker://docker.io/alpine:latest
+          ./bin/skopeo inspect docker://docker.io/alpine:latest
           ./bin/skopeo inspect docker://docker.io/ruby:2.5.5
