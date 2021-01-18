@@ -38,17 +38,15 @@ jobs:
     image: node:12
     steps:
       - get: |
-          yum install -y epel-release
-          yum install -y jq
           echo ${VERSION}
           store-cli get ./bin/skopeo --type=cache --scope=event
           ls -lrt ./bin
       - node12-sha256: |
-          ./bin/skopeo inspect docker://docker.io/node:12 | jq -r '.Digest'
+          ./bin/skopeo inspect docker://docker.io/node:12
       - alpine-sha256: |
-          ./bin/skopeo inspect docker://docker.io/alpine:latest | jq -r '.Digest'
+          ./bin/skopeo inspect docker://docker.io/alpine:latest
       - busybox-sha256: |
-          ./bin/skopeo inspect docker://docker.io/busybox:latest | jq -r '.Digest'
+          ./bin/skopeo inspect docker://docker.io/busybox:latest
   upload:
     requires: [~test]
     steps:
