@@ -12,3 +12,4 @@ jobs:
     steps:
       - install_skopeo: |
           yum install -y skopeo
+          which skopeo
