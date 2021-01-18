@@ -11,5 +11,12 @@ jobs:
     requires: [~commit]
     steps:
       - install_skopeo: |
-          yum install -y skopeo
-          which skopeo
+          yum install -y wget git make
+          wget -q -O go1.15.6.tar.gz https://golang.org/dl/go1.15.6.linux-amd64.tar.gz
+          tar -C /usr/local -xzf go1.15.6.tar.gz
+          mkdir /go && cd /go
+          export GOROOT=/usr/local/go
+          export GOPATH=/go/src
+          export PATH=$PATH:$GOROOT/bin
+          git clone https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
+          cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/skopeo
