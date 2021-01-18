@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+set +x
 
 # Increment a version string using Semantic Versioning (SemVer) terminology.
 
@@ -50,3 +52,4 @@ then
 fi
 
 export VERSION="${a[0]}.${a[1]}.${a[2]}"
+echo ${VERSION}
