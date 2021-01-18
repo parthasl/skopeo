@@ -24,7 +24,7 @@ jobs:
       - getVersion: |
           LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
           echo ${LATEST_VERSION}
-          ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION}
+          source ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION}
           echo ${VERSION}
       - upload: |
           echo skip
