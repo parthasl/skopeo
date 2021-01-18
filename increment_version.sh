@@ -1,6 +1,4 @@
 #!/bin/bash
-set -e
-set +x
 
 # Increment a version string using Semantic Versioning (SemVer) terminology.
 
