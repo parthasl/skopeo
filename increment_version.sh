@@ -49,5 +49,5 @@ then
   ((a[2]++))
 fi
 
-export VERSION="${a[0]}.${a[1]}.${a[2]}"
+VERSION="${a[0]}.${a[1]}.${a[2]}"
 echo ${VERSION}
