@@ -28,17 +28,15 @@ jobs:
           chmod +x bin/${PACKAGE}
           store-cli set ./bin/skopeo --type=cache --scope=event
       - get-version: |
-          LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
-          VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION} )
-          meta set latest_version ${LATEST_VERSION}
-          meta set new_version ${VERSION}
+          export LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
+          export VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p ${LATEST_VERSION} )
   test:
     requires: [~install]
     image: node:12
     steps:
       - get: |
-          meta get latest_version
-          meta get new_version
+          echo $VERSION
+          echo $LATEST_VERSION
           store-cli get ./bin/skopeo --type=cache --scope=event
           ls -lrt ./bin
       - node12-sha256: |
@@ -53,11 +51,12 @@ jobs:
       - get: |
           store-cli get ./bin/skopeo --type=cache --scope=event
       - upload: |
-          VERSION=$(meta get new_version)
+          echo $VERSION
+          echo $LATEST_VERSION
           if [[ "$(meta get parameters.override_version.value)" = "1" ]]; then
-            VERSION=$(meta get latest_version)
+            VERSION=${LATEST_VERSION}
           fi
-          echo "version: $VERSION"
+          echo "version: ${VERSION}"
           tar -czvf ./bin/${PACKAGE}-${VERSION}-linux.tar.gz ./bin/${PACKAGE}
           #curl --show-error --fail -T ./bin/${PACKAGE}-${VERSION}-linux.tar.gz -u${BINTRAY_USER}:${BINTRAY_APIKEY} https://api.bintray.com/content/screwdrivercd/screwdrivercd/${PACKAGE}/${VERSION}/${PACKAGE}-${VERSION}-linux.tar.gz?publish=1&override=$(meta get parameters.override_version.value)
     secrets:
