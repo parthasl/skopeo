@@ -11,7 +11,7 @@ jobs:
     requires: [~commit]
     environment:
       PACKAGE: skopeo
-      VERSION: 1.0.0
+      VERSION: 1.0.1
     steps:
       - install_skopeo: |
           yum install -y wget git make gcc gcc-c++
