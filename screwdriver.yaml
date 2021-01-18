@@ -23,7 +23,7 @@ jobs:
           cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/$PACKAGE
       - upload: |
           tar -czvf ./bin/$PACKAGE-$VERSION-linux.tar.gz ./bin/$PACKAGE
-          curl --show-error --fail -T ./bin/$PACKAGE-$VERSION-linux.tar.gz -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/content/screwdrivercd/screwdrivercd/$PACKAGE-$VERSION-linux.tar.gz;bt_package=$PACKAGE;bt_version=$VERSION
+          curl -v --show-error --fail -T ./bin/$PACKAGE-$VERSION-linux.tar.gz -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/content/screwdrivercd/screwdrivercd/$PACKAGE-$VERSION-linux.tar.gz;bt_package=$PACKAGE;bt_version=$VERSION
     secrets:
       - BINTRAY_USER
       - BINTRAY_APIKEY
