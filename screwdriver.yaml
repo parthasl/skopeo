@@ -28,6 +28,10 @@ jobs:
       - get-version: |
           LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
           NEW_VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p 1. )
+          if [[ -z $NEW_VERSION ]]; then
+            echo "not able to get new version"
+            exit 1
+          fi
           meta set latest_version ${LATEST_VERSION}
           meta set new_version ${NEW_VERSION}
   test:
