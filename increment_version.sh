@@ -1,53 +1,40 @@
-#!/bin/bash
+#!/bin/sh
 
-# Increment a version string using Semantic Versioning (SemVer) terminology.
-
-# Parse command line options.
-
-while getopts ":Mmp" Option
-do
-  case $Option in
-    M ) major=true;;
-    m ) minor=true;;
-    p ) patch=true;;
-  esac
-done
-
-shift $(($OPTIND - 1))
-
-version=$1
-
-# Build array from version string.
-
-a=( ${version//./ } )
-
-# If version string is missing or has the wrong number of members, show usage message.
-
-if [ ${#a[@]} -ne 3 ]
-then
-  echo "usage: $(basename $0) [-Mmp] major.minor.patch"
+if [[ -z $1 || -z $2 ]]; then
+  echo "usage: $(basename $0) [Mmp] major.minor.patch"
   exit 1
 fi
 
-# Increment version numbers as requested.
+if [[ "$1" -ne "M" && "$1" -ne "m" && "$1" -ne "p" ]]; then
+  echo "usage: $(basename $0) [Mmp] major.minor.patch"
+  exit 1
+fi
+version=$2
+ver=( ${version//./ } )
 
-if [ ! -z $major ]
+if [ ${#ver[@]} -ne 3 ]
 then
-  ((a[0]++))
-  a[1]=0
-  a[2]=0
+  echo "usage: $(basename $0) [Mmp] major.minor.patch"
+  exit 1
 fi
 
-if [ ! -z $minor ]
+if [ "$1" == "M" ]
 then
-  ((a[1]++))
-  a[2]=0
+  ((ver[0]++))
+  ver[1]=0
+  ver[2]=0
 fi
 
-if [ ! -z $patch ]
+if [ "$1" == "m" ]
 then
-  ((a[2]++))
+  ((ver[1]++))
+  ver[2]=0
 fi
 
-VERSION="${a[0]}.${a[1]}.${a[2]}"
-echo ${VERSION}
+if [ "$1" == "p" ]
+then
+  ((ver[2]++))
+fi
+
+new_version="${ver[0]}.${ver[1]}.${ver[2]}"
+echo ${new_version}
