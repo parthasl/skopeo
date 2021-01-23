@@ -30,4 +30,4 @@ if [ "$1" == "p" ]
 then
   ((ver[2]++))
 fi
-NEW_VERSION="${ver[0]}.${ver[1]}.${ver[2]}"
+export NEW_VERSION="${ver[0]}.${ver[1]}.${ver[2]}"
