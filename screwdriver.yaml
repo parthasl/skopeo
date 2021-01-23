@@ -14,18 +14,7 @@ jobs:
     environment:
       PACKAGE: skopeo
     steps:
-      - setup: |
-          yum install -y epel-release
-          yum install -y wget git make gcc gcc-c++ jq
-          wget -q -O go1.15.6.tar.gz https://golang.org/dl/go1.15.6.linux-amd64.tar.gz
-          tar -C /usr/local -xzf go1.15.6.tar.gz
-          mkdir /go && cd /go
-          export GOROOT=/usr/local/go && export GOPATH=/go/src && export PATH=${PATH}:${GOROOT}/bin
-          git clone https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
-          cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/${PACKAGE}
-          chmod +x bin/${PACKAGE}
-          store-cli set ./bin/skopeo --type=cache --scope=event
-      - get-version: |
+     - get-version: |
           LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
           NEW_VERSION=$( ${SD_SOURCE_DIR}/get_version.sh -p 1. )
           echo "newVersion: ${NEW_VERSION}"
@@ -37,6 +26,17 @@ jobs:
           echo "here"
           meta set latest_version ${LATEST_VERSION}
           meta set new_version ${NEW_VERSION}
+     - setup: |
+          yum install -y epel-release
+          yum install -y wget git make gcc gcc-c++ jq
+          wget -q -O go1.15.6.tar.gz https://golang.org/dl/go1.15.6.linux-amd64.tar.gz
+          tar -C /usr/local -xzf go1.15.6.tar.gz
+          mkdir /go && cd /go
+          export GOROOT=/usr/local/go && export GOPATH=/go/src && export PATH=${PATH}:${GOROOT}/bin
+          git clone https://github.com/containers/skopeo $GOPATH/src/github.com/containers/skopeo
+          cd $GOPATH/src/github.com/containers/skopeo && make DISABLE_CGO=1 bin/${PACKAGE}
+          chmod +x bin/${PACKAGE}
+          store-cli set ./bin/skopeo --type=cache --scope=event
   test:
     requires: [~install]
     image: node:12
