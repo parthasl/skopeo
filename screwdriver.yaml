@@ -27,7 +27,7 @@ jobs:
           store-cli set ./bin/skopeo --type=cache --scope=event
       - get-version: |
           LATEST_VERSION=$( curl -s -u$BINTRAY_USER:$BINTRAY_APIKEY https://api.bintray.com/packages/screwdrivercd/screwdrivercd/$PACKAGE/versions/_latest | jq -r '.name' )
-          NEW_VERSION=$( ${SD_SOURCE_DIR}/increment_version.sh -p 1. )
+          NEW_VERSION=$( ${SD_SOURCE_DIR}/get_version.sh -p 1. )
           echo "newVersion: ${NEW_VERSION}"
           if [[ -z $NEW_VERSION ]]; then
             echo "im here"
